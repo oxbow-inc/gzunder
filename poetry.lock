@@ -475,6 +475,7 @@ optional = false
 python-versions = ">=3.6.1"
 
 [package.dependencies]
+python-dotenv = {version = ">=0.10.4", optional = true, markers = "extra == \"dotenv\""}
 typing-extensions = ">=3.7.4.3"
 
 [package.extras]
@@ -527,6 +528,17 @@ requests = "*"
 [package.extras]
 json = ["ujson"]
 redis = ["redis (>=3.4.1)"]
+
+[[package]]
+name = "python-dotenv"
+version = "0.17.1"
+description = "Read key-value pairs from a .env file and set them as environment variables"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.extras]
+cli = ["click (>=5.0)"]
 
 [[package]]
 name = "pytz"
@@ -674,7 +686,7 @@ tomlkit = ">=0.5.8"
 
 [[package]]
 name = "tomlkit"
-version = "0.7.1"
+version = "0.7.2"
 description = "Style preserving TOML library"
 category = "dev"
 optional = false
@@ -793,7 +805,7 @@ fmt = ["autoflake", "black", "docformatter", "pyupgrade", "reorder-python-import
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.9"
-content-hash = "f706e00d3834a55e7e64c3918c1e409f2181f245e8d50075d6999e4cd3e5c532"
+content-hash = "04336b20b27d38d3b45cd6f5f4f17af12a0986f34a8a59f960e4e4cb65bb3507"
 
 [metadata.files]
 aerich = [
@@ -1038,6 +1050,10 @@ pypika-tortoise = [
 pytelegrambotapi = [
     {file = "pyTelegramBotAPI-3.7.9.tar.gz", hash = "sha256:7774314ff429852d423d5dfebe8fc1011dca93a028f1ccb0c56db6817245b752"},
 ]
+python-dotenv = [
+    {file = "python-dotenv-0.17.1.tar.gz", hash = "sha256:b1ae5e9643d5ed987fc57cc2583021e38db531946518130777734f9589b3141f"},
+    {file = "python_dotenv-0.17.1-py2.py3-none-any.whl", hash = "sha256:00aa34e92d992e9f8383730816359647f358f4a3be1ba45e5a5cefd27ee91544"},
+]
 pytz = [
     {file = "pytz-2020.5-py2.py3-none-any.whl", hash = "sha256:16962c5fb8db4a8f63a26646d8886e9d769b6c511543557bc84e9569fb9a9cb4"},
     {file = "pytz-2020.5.tar.gz", hash = "sha256:180befebb1927b16f6b57101720075a984c019ac16b1b7575673bea42c6c3da5"},
@@ -1157,8 +1173,8 @@ toml-sort = [
     {file = "toml_sort-0.19.0-py3-none-any.whl", hash = "sha256:ca7c7100b0bd14faf3056361ddff478411a609fbaabd00c27d48569e62ab55bc"},
 ]
 tomlkit = [
-    {file = "tomlkit-0.7.1-py2.py3-none-any.whl", hash = "sha256:01227863019024861bb83d9a09a757b1c65604969fd2cebb19f5e2b340649792"},
-    {file = "tomlkit-0.7.1.tar.gz", hash = "sha256:24d6049e0765aad9c56a30dfa60d54c69f39c142112a6c57ce8f1c285b6b9d8f"},
+    {file = "tomlkit-0.7.2-py2.py3-none-any.whl", hash = "sha256:173ad840fa5d2aac140528ca1933c29791b79a374a0861a80347f42ec9328117"},
+    {file = "tomlkit-0.7.2.tar.gz", hash = "sha256:d7a454f319a7e9bd2e249f239168729327e4dd2d27b17dc68be264ad1ce36754"},
 ]
 tortoise-orm = [
     {file = "tortoise-orm-0.17.2.tar.gz", hash = "sha256:1a742b2f15a31d47a8dea7706b478cc9a7ce9af268b61d77d0fa22cfbaea271a"},
