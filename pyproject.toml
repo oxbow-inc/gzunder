@@ -32,6 +32,7 @@ pydantic     = {version = "*", extras = ["dotenv"]}
 tortoise-orm = {version = "*", extras = ["asyncpg"]}
 pyTelegramBotAPI = "*"
 aerich = "*"
+fqdn = "*"
 # Extra: fmt
 autoflake              = { optional = true, version = "*" }
 black                  = { optional = true, version = "*" }
