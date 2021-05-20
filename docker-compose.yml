@@ -1,7 +1,7 @@
 version: '3.1'
 
-volumes:
-  pg_project:
+# volumes:
+#   pg_project:
 
 services:
   pg_db:

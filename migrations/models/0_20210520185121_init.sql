@@ -17,22 +17,21 @@ CREATE TABLE IF NOT EXISTS "meeting" (
     "whoru" TEXT NOT NULL,
     "location" TEXT NOT NULL,
     "description" TEXT NOT NULL,
-    "time_kill" TIMESTAMPTZ NOT NULL,
-    "is_active" BOOL NOT NULL  DEFAULT True,
+    "killed_at" TIMESTAMPTZ,
     "user_id" INT NOT NULL REFERENCES "user" ("user_id") ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS "dialog" (
     "dialog_id" SERIAL NOT NULL PRIMARY KEY,
-    "user_to_id" INT NOT NULL REFERENCES "user" ("user_id") ON DELETE CASCADE,
     "bot_id" INT NOT NULL REFERENCES "bot" ("bot_id") ON DELETE CASCADE,
-    "meeting_id" INT NOT NULL REFERENCES "meeting" ("meeting_id") ON DELETE CASCADE,
-    "user_from_id" INT NOT NULL REFERENCES "user" ("user_id") ON DELETE CASCADE
+    "user_to_id" INT NOT NULL REFERENCES "user" ("user_id") ON DELETE CASCADE,
+    "user_from_id" INT NOT NULL REFERENCES "user" ("user_id") ON DELETE CASCADE,
+    "meeting_id" INT NOT NULL REFERENCES "meeting" ("meeting_id") ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS "message" (
     "msg_id" SERIAL NOT NULL PRIMARY KEY,
     "text" TEXT NOT NULL,
-    "sender_id" INT NOT NULL REFERENCES "user" ("user_id") ON DELETE CASCADE,
-    "dialog_id" INT NOT NULL REFERENCES "dialog" ("dialog_id") ON DELETE CASCADE
+    "dialog_id" INT NOT NULL REFERENCES "dialog" ("dialog_id") ON DELETE CASCADE,
+    "sender_id" INT NOT NULL REFERENCES "user" ("user_id") ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS "aerich" (
     "id" SERIAL NOT NULL PRIMARY KEY,

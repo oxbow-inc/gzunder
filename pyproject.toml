@@ -4,13 +4,56 @@ version = "0.1.0"
 description = ""
 authors = ["Your Name <you@example.com>"]
 
+[tool.black]
+line-length = 79
+exclude = '''
+(
+  /(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+  )/
+  | foo.py           # also separately exclude a file named foo.py in
+                     # the root of the project
+  | /src/buglog/data/config.py
+)
+'''
+
 [tool.poetry.dependencies]
-python = "^3.7"
-tortoise-orm = {version = "^0.17.2", extras = ["asyncpg"]}
-pyTelegramBotAPI = "^3.7.9"
-aerich = "^0.5.3"
+python = ">=3.8,<3.9"
+tortoise-orm = {version = "*", extras = ["asyncpg"]}
+pyTelegramBotAPI = "*"
+aerich = "*"
+# Extra: fmt
+autoflake              = { optional = true, version = "*" }
+black                  = { optional = true, version = "*" }
+docformatter           = { optional = true, version = "*" }
+pyupgrade              = { optional = true, version = "*" }
+reorder-python-imports = { optional = true, version = "*" }
 
 [tool.poetry.dev-dependencies]
+mypy       = "*"
+safety     = "*"
+pre-commit = "*"
+ipython    = "*"
+toml-sort  = "*"
+restview   = "*"
+
+[tool.poetry.extras]
+fmt = [
+  "autoflake",
+  "black",
+  "docformatter",
+  "pyupgrade",
+  "reorder-python-imports",
+]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
