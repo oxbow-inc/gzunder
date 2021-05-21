@@ -7,7 +7,7 @@
 * [aerich tutorial](https://www.programmersought.com/article/46386196535/)
 
 ### Bootstrap
-Requires `pyenv`, `pipx`, `poetry` and `docker-compose`.
+Requires `pyenv`, `pipx`, `poetry`, `docker-compose`, `git-secret`.
 
 Then:
 ```sh
@@ -31,4 +31,7 @@ docker-compose rm -f pg_db; docker-compose up pg_db
 poetry run aerich init -t gzunder.settings.TORTOISE_ORM
 # Creates DB
 poetry run aerich init-db
+
+# Decrypt .env
+git secret reveal
 ```
