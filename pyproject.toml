@@ -30,7 +30,7 @@ exclude = '''
 python = ">=3.8,<3.9"
 pydantic     = {version = "*", extras = ["dotenv"]}
 tortoise-orm = {version = "*", extras = ["asyncpg"]}
-pyTelegramBotAPI = "*"
+aiogram      = {version = "*", extras = ["speedups"]}
 aerich = "*"
 fqdn = "*"
 # Extra: fmt
