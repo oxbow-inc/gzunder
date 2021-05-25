@@ -1,7 +1,5 @@
+---
 version: '3.1'
-
-# volumes:
-#   pg_project:
 
 services:
   pg_db:
@@ -11,7 +9,5 @@ services:
       - POSTGRES_USER=${PG_USER}
       - POSTGRES_PASSWORD=${PG_PASS}
       - POSTGRES_DB=${PG_DB}
-        #volumes:
-        #- pg_project:/var/lib/postgresql/data
     ports:
       - ${PG_PORT}:5432
