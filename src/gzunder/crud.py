@@ -6,12 +6,13 @@ from tortoise import Tortoise
 from tortoise.models import Model
 from tortoise.transactions import atomic
 
-from gzunder.models import Client, Meeting
+from gzunder.models import Client
+from gzunder.models import Meeting
 from gzunder.settings import settings
 from gzunder.settings import TORTOISE_ORM
 
 
-async def init():
+async def init() -> None:
     """Bootstrap DB."""
     # Connect to the database
     await Tortoise.init(config=TORTOISE_ORM)
@@ -20,7 +21,7 @@ async def init():
 
 
 @atomic()
-async def create_meeting(client_id, **kwargs):
+async def create_meeting(client_id, **kwargs) -> None:
     """Insert a new meeting."""
     # Create client if not exists
     client, _ = await Client.get_or_create(client_id=client_id)
@@ -78,10 +79,6 @@ async def main():
         location="интернеты",
         description="на sv-98 + оружие по выбору.\nпроигравший дарит победителю 10% акций Папы Джонса.",
     )
-    # xs = await get_client_meetings(client_id=12341)
-    # print(xs)
-    # x = xs[0]
-    # print(x.title)
 
 
 if __name__ == "__main__":

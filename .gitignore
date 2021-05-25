@@ -3,3 +3,4 @@
 */__pycache__/*
 .gitsecret/keys/random_seed
 .env
+/dist/

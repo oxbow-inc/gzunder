@@ -41,6 +41,11 @@ per-file-ignores="""
     S101,
     ANN101,
     N805,
+  # (flake8-bugbear) `.next()` is not a thing on Python 3.
+                     Use the `next()` builtin.
+                     For Python 2 compatibility, use `six.next()`.
+  src/gzunder/echo_bot_fin.py:
+    B305,
 """
 max-line-length = 79
 # mccabe
@@ -58,6 +63,8 @@ tortoise-orm = {version = "*", extras = ["asyncpg"]}
 aiogram      = {version = "*", extras = ["speedups"]}
 aerich = "*"
 fqdn = "*"
+asyncpg = "*"
+"ruamel.yaml" = "*"
 # Extra: lint
 pyproject-flake8              = { optional = true, version = "*" }
 dead                          = { optional = true, version = "*" }
@@ -104,7 +111,6 @@ pytest-mock = { optional = true, version = "*" }
 sphinx                   = { optional = true, version = "*" }
 sphinx-autodoc-typehints = { optional = true, version = "*" }
 sphinx-rtd-theme         = { optional = true, version = "*" }
-asyncpg = "^0.23.0"
 
 [tool.poetry.dev-dependencies]
 mypy       = "*"
@@ -114,6 +120,8 @@ ipython    = "*"
 toml-sort  = "*"
 restview   = "*"
 taskipy    = "*"
+devtools = {extras = ["pygments"], version = "*"}
+pipdeptree = "*"
 
 [tool.poetry.extras]
 lint = [

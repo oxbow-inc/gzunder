@@ -1,21 +1,24 @@
+"""Main bot source code."""
 import logging
-from textwrap import dedent
 
 import aiogram.utils.markdown as md  # type: ignore[import]
 from aiogram import Bot
 from aiogram import Dispatcher
-from aiogram import types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage  # type: ignore[import]
 from aiogram.dispatcher import FSMContext  # type: ignore[import]
 from aiogram.dispatcher.filters import Text  # type: ignore[import]
 from aiogram.dispatcher.filters.state import State  # type: ignore[import]
 from aiogram.dispatcher.filters.state import StatesGroup
-from aiogram.types import ParseMode  # type: ignore[import]
+from aiogram.types import Message
+from aiogram.types import ParseMode
+from aiogram.types import ReplyKeyboardMarkup
+from aiogram.types import ReplyKeyboardRemove
 from aiogram.utils import executor
 
 from gzunder.crud import get_client_meetings
 from gzunder.crud import init
 from gzunder.settings import settings
+from gzunder.settings import talks
 
 logging.basicConfig(level=logging.INFO)
 
@@ -25,12 +28,16 @@ API_TOKEN = settings.tg_token
 bot = Bot(token=API_TOKEN)
 
 # For example use simple MemoryStorage for Dispatcher.
-storage = MemoryStorage()
+storage = MemoryStorage()  # TODO Switch to redis
 dp = Dispatcher(bot, storage=storage)
 
 
+# TODO Black-formatted multiline strings are ugly. Fix with a dictionary?
+
 # States
 class Form(StatesGroup):
+    """The /meet command states"""
+
     title = State()
     whoami = State()
     whoru = State()
@@ -39,125 +46,75 @@ class Form(StatesGroup):
 
 
 @dp.message_handler(commands="my")
-async def cmd_my(message: types.Message) -> None:
+async def cmd_my(message: Message) -> None:
+    """The /my command"""
     meetings = await get_client_meetings(client_id=message.chat.id)
     print(meetings)
     if not meetings:
-        await message.answer(
-            dedent(
-                """
-            У вас сейчас нет актуальных встреч.
-            Чтобы создать встречу, введите /meet.
-        """
-            )
-        )
+        await message.answer(talks.my["no_meetings"])
         return
 
-    await message.answer(
-        dedent(
-            """
-        Ваши встречи:
-    """
-        )
-    )
+    await message.answer("Ваши встречи:")
 
     for meeting in meetings:
-        await message.answer(
-            dedent(
-                f"""
-            {meeting.title}
-        """
-            )
-        )
+        await message.answer(f"{meeting.title}")
 
 
 @dp.message_handler(commands="meet")
-async def cmd_meet(message: types.Message) -> None:
+async def cmd_meet(message: Message) -> None:
+    """The /cmd command, 1st stage: asking title"""
     # Set state
     await Form.title.set()
 
-    await message.answer(
-        dedent(
-            """
-        Чтобы создать встречу, мне нужно кое-что узнать...
-        Как озаглавим нашу встречу? Выбери что-то цепляющее,
-        например "Хочу поиграть в шахматы"
-    """
-        )
-    )
-
-
-@dp.message_handler(lambda message: len(message.text) > 2, state=Form.title)
-async def process_title(message: types.Message, state: FSMContext) -> None:
-    async with state.proxy() as data:
-        data["title"] = message.text
-
-    await Form.next()
-    await message.answer(
-        dedent(
-            """
-        Напишите строчку о себе, например "кмс по шахматам UwU"
-    """
-        )
-    )
+    await message.answer(talks.meet["title"])
 
 
 @dp.message_handler(
     lambda message: not len(message.text) > 2, state=Form.title
 )
-async def process_title_empty(message: types.Message) -> None:
-    await message.answer(
-        dedent(
-            """
-        Потрудись написать более-менее содержательный заголовок.
-        Итак, как назовем наше мероприятие?
-    """
-        )
-    )
+async def process_title_empty(message: Message) -> None:
+    """The /cmd command, 1st stage: if title given is too short."""
+    await message.answer(talks.meet["invite_too_short"])
+
+
+@dp.message_handler(lambda message: len(message.text) > 2, state=Form.title)
+async def process_title(message: Message, state: FSMContext) -> None:
+    """The /cmd command, 2nd stage: asking self description"""
+    async with state.proxy() as data:
+        data["title"] = message.text
+
+    await Form.next()
+    await message.answer(talks.meet["who_am_i"])
 
 
 @dp.message_handler(state=Form.whoami)
-async def process_whoami(message: types.Message, state: FSMContext) -> None:
+async def process_whoami(message: Message, state: FSMContext) -> None:
+    """The /cmd command, 3rd stage: asking mate description"""
     async with state.proxy() as data:
         data["whoami"] = message.text
 
     await Form.next()
-    await message.answer(
-        dedent(
-            """
-        Напишите что для вас важно, кого вы ищете.
-        Например "Не пишите мне, если вы не знаете
-        что такое королевский гамбит"
-    """
-        )
-    )
+    await message.answer(talks.meet["who_are_you"])
 
 
 @dp.message_handler(state=Form.whoru)
-async def process_whoru(message: types.Message, state: FSMContext) -> None:
+async def process_whoru(message: Message, state: FSMContext) -> None:
+    """The /cmd command, 4th stage: asking extended description."""
     async with state.proxy() as data:
         data["whoru"] = message.text
 
     await Form.next()
-    await message.answer(
-        dedent(
-            """
-        Напишите более развернутое описание.
-        Например: "С проигравшего - пицца"
-    """
-        )
-    )
+    await message.answer(talks.meet["description"])
 
 
 @dp.message_handler(state=Form.description)
-async def process_description(
-    message: types.Message, state: FSMContext
-) -> None:
+async def process_description(message: Message, state: FSMContext) -> None:
+    """The /cmd command, 5th stage: asking for accept."""
     async with state.proxy() as data:
         data["description"] = message.text
 
     # Configure ReplyKeyboardMarkup
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+    markup = ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
     markup.add("Погнали", "Отмена")
 
     await Form.next()
@@ -184,45 +141,24 @@ async def process_description(
     lambda message: message.text not in ["Погнали", "Отмена"],
     state=Form.accept,
 )
-async def process_accept_invalid(message: types.Message) -> None:
-    return await message.answer(
-        dedent(
-            """
-        Выбери с клавиатуры.
-    """
-        )
-    )
+async def process_accept_invalid(message: Message) -> None:
+    return await message.answer(talks.meet["accept_invalid"])
 
 
 @dp.message_handler(state=Form.accept)
-async def process_accept_yes(
-    message: types.Message, state: FSMContext
-) -> None:
+async def process_accept_yes(message: Message, state: FSMContext) -> None:
     async with state.proxy() as data:
         data["accept"] = message.text
 
     # Remove keyboard
-    markup = types.ReplyKeyboardRemove()
+    markup = ReplyKeyboardRemove()
 
     if message.text == "Погнали":
         print(data)
-        await message.answer(
-            dedent(
-                """
-            Анкета отправлена!.. в stdout
-        """
-            ),
-            reply_markup=markup,
-        )
+        await message.answer(talks.meet["accept_yes"], reply_markup=markup)
+
     else:
-        await message.answer(
-            dedent(
-                """
-            Ну нет так нет, чего бухтеть-то.
-        """
-            ),
-            reply_markup=markup,
-        )
+        await message.answer(talks.meet["accept_no"], reply_markup=markup)
 
     # Finish conversation
     await state.finish()
@@ -231,7 +167,7 @@ async def process_accept_yes(
 # You can use state '*' if you need to handle all states
 @dp.message_handler(state="*", commands="cancel")
 @dp.message_handler(Text(equals="cancel", ignore_case=True), state="*")
-async def cancel_handler(message: types.Message, state: FSMContext) -> None:
+async def cancel_handler(message: Message, state: FSMContext) -> None:
     """
     Allow user to cancel any action
     """
@@ -243,9 +179,7 @@ async def cancel_handler(message: types.Message, state: FSMContext) -> None:
     # Cancel state and inform user about it
     await state.finish()
     # And remove keyboard (just in case)
-    await message.answer(
-        "Cancelled.", reply_markup=types.ReplyKeyboardRemove()
-    )
+    await message.answer("Cancelled.", reply_markup=ReplyKeyboardRemove())
 
 
 if __name__ == "__main__":

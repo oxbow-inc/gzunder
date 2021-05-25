@@ -1,8 +1,13 @@
 """Get settings from `.env` file."""
+from pathlib import Path
+from typing import Dict
+
 from fqdn import FQDN  # type: ignore[import]
 from pydantic import BaseSettings
 from pydantic import conint
+from pydantic import constr
 from pydantic import validator
+from ruamel.yaml import YAML
 
 
 class Settings(BaseSettings):
@@ -34,7 +39,15 @@ class Settings(BaseSettings):
         env_file = ".env"
 
 
+class Talks(BaseSettings):
+    """Bot's text messages."""
+
+    meet: Dict[constr(regex=r"^[a-z_]*$"), str]  # type: ignore
+    my: Dict[constr(regex=r"^[a-z_]*$"), str]  # type: ignore
+
+
 settings = Settings()
+talks = Talks(**YAML(typ="safe").load(Path("talks.yaml")))
 
 
 TORTOISE_ORM = {
