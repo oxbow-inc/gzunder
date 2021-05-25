@@ -6,6 +6,12 @@
 ### Sources:
 * [aerich tutorial](https://www.programmersought.com/article/46386196535/)
 
+### Technical Decisions
+
+#### [Beartype](https://github.com/beartype/beartype) vs [Pydantic](https://github.com/samuelcolvin/pydantic)
+Pydantic has some mypy [issues](https://github.com/samuelcolvin/pydantic/issues/156), but it is still better,
+as beartype does not have [application-level types](https://github.com/beartype/beartype/blob/main/beartype/vale/__init__.py#L47).
+
 ### Bootstrap
 Requires `pyenv`, `pipx`, `poetry`, `docker-compose`, `git-secret`.
 

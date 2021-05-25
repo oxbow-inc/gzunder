@@ -26,6 +26,31 @@ exclude = '''
 )
 '''
 
+[tool.flake8]
+ignore = """
+    E501,  # Line too long
+  # flake8-fixme
+    T101,  # Line contains TODO
+"""
+
+per-file-ignores="""
+  # (flake8-bandit)      Use of assert detected
+  # (flake8-annotations) Missing type annotation for self in method
+  # (pep8-naming)        First argument of a method should be named 'self'
+  src/gzunder/settings.py:
+    S101,
+    ANN101,
+    N805,
+"""
+max-line-length = 79
+# mccabe
+max-complexity = 6
+# flake8-annotations-complexity
+max-annotations-complexity = 4
+no-accept-encodings = true
+# flake8-expression-complexity
+max-expression-complexity = 7
+
 [tool.poetry.dependencies]
 python = ">=3.8,<3.9"
 pydantic     = {version = "*", extras = ["dotenv"]}
@@ -33,12 +58,53 @@ tortoise-orm = {version = "*", extras = ["asyncpg"]}
 aiogram      = {version = "*", extras = ["speedups"]}
 aerich = "*"
 fqdn = "*"
+# Extra: lint
+pyproject-flake8              = { optional = true, version = "*" }
+dead                          = { optional = true, version = "*" }
+dlint                         = { optional = true, version = "*" }  # Encourage best practices + security
+flake8                        = { optional = true, version = "*" }
+flake8-alfred                 = { optional = true, version = "*" }  # Check for unsafe/obsolete symbols
+flake8-annotations            = { optional = true, version = "*" }
+flake8-annotations-complexity = { optional = true, version = "*" }  # Validate annotations complexity
+flake8-bandit                 = { optional = true, version = "*" }  # Check security
+flake8-broken-line            = { optional = true, version = "*" }  # Don't break the line
+flake8-bugbear                = { optional = true, version = "*" }  # Likely bugs and design problems
+flake8-builtins               = { optional = true, version = "*" }  # Builtins used as variables or parameters
+flake8-cognitive-complexity   = { optional = true, version = "*" }  # Functions' cognitive complexity
+flake8-comprehensions         = { optional = true, version = "*" }  # Better list/set/dict comprehensions
+flake8-debugger               = { optional = true, version = "*" }  # Check for debug statements
+flake8-docstrings             = { optional = true, version = "*" }  # Checks provided by pep257
+flake8-eradicate              = { optional = true, version = "*" }  # Commented out or dead code
+flake8-executable             = { optional = true, version = "*" }  # Executable flags and shebangs
+flake8-expression-complexity  = { optional = true, version = "*" }  # Annotations' complexity
+flake8-fixme                  = { optional = true, version = "*" }  # Check for FIXME, TODO etc notes
+# flake8-functions              = { optional = true, version = "*" }  # Function parameters (length, complexity, etc)
+flake8-mutable                = { optional = true, version = "*" }  # Check for mutable default arguments
+flake8-pep3101                = { optional = true, version = "*" }  # Ceck for old string formatting
+flake8-pie                    = { optional = true, version = "*" }  # Misc. lints
+flake8-print                  = { optional = true, version = "*" }  # Print statements
+flake8-string-format          = { optional = true, version = "*" }  # Check .format()
+flake8-tidy-imports           = { optional = true, version = "*" }
+flakehell                     = { optional = true, version = "*" }
+pep8-naming                   = { optional = true, version = "*" }  # Check naming conventions
+yamllint                      = { optional = true, version = "*" }
 # Extra: fmt
 autoflake              = { optional = true, version = "*" }
 black                  = { optional = true, version = "*" }
 docformatter           = { optional = true, version = "*" }
 pyupgrade              = { optional = true, version = "*" }
 reorder-python-imports = { optional = true, version = "*" }
+# Extra: test
+codecov     = { optional = true, version = "*" }
+coverage    = { optional = true, version = "*", extras = ["toml"] }
+pytest      = { optional = true, version = "*" }
+pytest-cov  = { optional = true, version = "*" }
+pytest-mock = { optional = true, version = "*" }
+# Extra: docs
+sphinx                   = { optional = true, version = "*" }
+sphinx-autodoc-typehints = { optional = true, version = "*" }
+sphinx-rtd-theme         = { optional = true, version = "*" }
+asyncpg = "^0.23.0"
 
 [tool.poetry.dev-dependencies]
 mypy       = "*"
@@ -47,8 +113,40 @@ pre-commit = "*"
 ipython    = "*"
 toml-sort  = "*"
 restview   = "*"
+taskipy    = "*"
 
 [tool.poetry.extras]
+lint = [
+  "pyproject-flake8",
+  "dead",
+  "dlint",
+  "flake8",
+  "flake8-alfred",
+  "flake8-annotations",
+  "flake8-annotations-complexity",
+  "flake8-bandit",
+  "flake8-broken-line",
+  "flake8-bugbear",
+  "flake8-builtins",
+  "flake8-cognitive-complexity",
+  "flake8-comprehensions",
+  "flake8-debugger",
+  "flake8-docstrings",
+  "flake8-eradicate",
+  "flake8-executable",
+  "flake8-expression-complexity",
+  "flake8-fixme",
+  "flake8-functions",
+  "flake8-mutable",
+  "flake8-pep3101",
+  "flake8-pie",
+  "flake8-print",
+  "flake8-string-format",
+  "flake8-tidy-imports",
+  "flakehell",
+  "pep8-naming",
+  "yamllint",
+]
 fmt = [
   "autoflake",
   "black",
@@ -56,7 +154,26 @@ fmt = [
   "pyupgrade",
   "reorder-python-imports",
 ]
+test = [
+  "codecov",
+  "coverage",
+  "pytest",
+  "pytest-cov",
+  "pytest-mock",
+]
+docs = [
+  "sphinx",
+  "sphinx-autodoc-typehints",
+  "sphinx-rtd-theme",
+]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.taskipy.tasks]
+fmt = "task fmt_imports && task fmt_black"
+fmt_imports = "reorder-python-imports --py38-plus --unclassifiable-application-module=gzunder src/**/*.py"
+fmt_black = "black ."
+lint = "task lint_pylint && task lint_mypy"
+lint_mypy = "mypy --show-error-codes ."
